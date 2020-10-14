@@ -27,7 +27,9 @@ export default function styleConstructor(theme = {}) {
       height: 24,
       bottom: 0,
       alignItems: 'center',
-      backgroundColor: appStyle.calendarBackground
+      backgroundColor: appStyle.calendarBackground,
+      borderTopRightRadius: 30,
+      borderTopLeftRadius: 30,
     },
     weekday: {
       width: 32,
@@ -35,12 +37,12 @@ export default function styleConstructor(theme = {}) {
       color: appStyle.textSectionTitleColor,
       fontSize: appStyle.textDayHeaderFontSize,
       fontFamily: appStyle.textDayHeaderFontFamily,
-      fontWeight: appStyle.textDayHeaderFontWeight
+      fontWeight: appStyle.textDayHeaderFontWeight,
     },
     reservations: {
       flex: 1,
-      marginTop: 104,
-      backgroundColor: appStyle.backgroundColor
+      marginTop: 200,
+      backgroundColor: '#FFFFFF'
     },
     ...(theme[STYLESHEET_ID] || {})
   });

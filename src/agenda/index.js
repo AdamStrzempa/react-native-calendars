@@ -12,7 +12,7 @@ import {VelocityTracker} from '../input';
 import {AGENDA_CALENDAR_KNOB} from '../testIDs';
 
 
-const HEADER_HEIGHT = 104;
+const HEADER_HEIGHT = 200;
 const KNOB_HEIGHT = 24;
 //Fallback for react-native-web or when RN version is < 0.44
 const {Text, View, Dimensions, Animated, ViewPropTypes} = ReactNative;
@@ -150,7 +150,7 @@ export default class AgendaView extends Component {
   }
 
   calendarOffset() {
-    return 96 - (this.viewHeight / 2);
+    return 65 - (this.viewHeight / 2);
   }
 
   initialScrollPadPosition = () => {
@@ -361,6 +361,8 @@ export default class AgendaView extends Component {
     const weekDaysNames = dateutils.weekDayNames(this.props.firstDay);
 
     const weekdaysStyle = [this.styles.weekdays, {
+      backgroundColor: '#3B4B7C',
+      flexDirection: 'column',
       opacity: this.state.scrollY.interpolate({
         inputRange: [agendaHeight - HEADER_HEIGHT, agendaHeight],
         outputRange: [0, 1],
@@ -459,10 +461,14 @@ export default class AgendaView extends Component {
           {knob}
         </Animated.View>
         <Animated.View style={weekdaysStyle}>
-          {this.props.showWeekNumbers && <Text allowFontScaling={false} style={this.styles.weekday} numberOfLines={1}></Text>}
+          <View style={{ height: 70, justifyContent: 'center' }}>
+            <Text style={[this.styles.weekday, { textAlign: 'left', margin: 0, marginLeft: 12, width: 100, fontSize: 30 }]}>{this.state.selectedDay.toString('MMMM')}</Text>
+          </View>
+          <View style={[{ flexDirection: 'row',justifyContent: 'space-between', paddingHorizontal: 9 }]}>
           {weekDaysNames.map((day, index) => (
             <Text allowFontScaling={false} key={day + index} style={this.styles.weekday} numberOfLines={1}>{day}</Text>
           ))}
+          </View>
         </Animated.View>
         <Animated.ScrollView
           ref={ref => this.scrollPad = ref}

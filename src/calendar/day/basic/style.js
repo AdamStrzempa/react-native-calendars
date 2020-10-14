@@ -16,7 +16,7 @@ export default function styleConstructor(theme={}) {
       fontSize: appStyle.textDayFontSize,
       fontFamily: appStyle.textDayFontFamily,
       fontWeight: appStyle.textDayFontWeight,
-      color: appStyle.dayTextColor,
+      color: 'white',
       backgroundColor: 'rgba(255, 255, 255, 0)',
       ...appStyle.textDayStyle
     },
@@ -25,7 +25,11 @@ export default function styleConstructor(theme={}) {
     },
     selected: {
       backgroundColor: appStyle.selectedDayBackgroundColor,
-      borderRadius: 16
+      height: 40,
+      width: 40,
+      borderRadius: 60,
+      borderWidth: 1,
+      borderColor: '#7E95FE'
     },
     today: {
       backgroundColor: appStyle.todayBackgroundColor,

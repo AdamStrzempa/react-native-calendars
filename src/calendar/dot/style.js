@@ -16,7 +16,7 @@ export default function styleConstructor(theme={}) {
     },
     visibleDot: {
       opacity: 1,
-      backgroundColor: appStyle.dotColor
+      backgroundColor: 'white'
     },
     selectedDot: {
       backgroundColor: appStyle.selectedDotColor

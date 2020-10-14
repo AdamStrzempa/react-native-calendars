@@ -129,6 +129,8 @@ class CalendarHeader extends Component {
       return renderHeader(month);
     }
 
+    const monthStr = month.toString('MMMM') === 'January' ? month.toString(monthFormat) : month.toString('MMMM')
+
     return (
       <Fragment>
         <Text
@@ -137,7 +139,7 @@ class CalendarHeader extends Component {
           testID={testID ? `${HEADER_MONTH_NAME}-${testID}`: HEADER_MONTH_NAME}
           {...webProps}
         >
-          {month.toString(monthFormat)}
+          {monthStr}
         </Text>
       </Fragment>
     );
@@ -204,12 +206,10 @@ class CalendarHeader extends Component {
         importantForAccessibility={this.props.importantForAccessibility} // Android
       >
         <View style={this.style.header}>
-          {leftArrow}
           <View style={this.style.headerContainer}>
             {this.renderHeader()}
             {indicator}
           </View>
-          {rightArrow}
         </View>
         {!this.props.hideDayNames &&
           <View style={this.style.week}>

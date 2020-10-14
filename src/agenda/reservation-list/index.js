@@ -1,11 +1,13 @@
 import React, {Component} from 'react';
-import {FlatList, ActivityIndicator, View} from 'react-native';
+import {FlatList, ActivityIndicator, View, Text, StyleSheet, Dimensions} from 'react-native';
 import Reservation from './reservation';
 import PropTypes from 'prop-types';
 import XDate from 'xdate';
 
 import dateutils from '../../dateutils';
 import styleConstructor from './style';
+
+const { width } = Dimensions.get('window')
 
 
 class ReservationList extends Component {
@@ -115,16 +117,39 @@ class ReservationList extends Component {
   }
 
   renderRow({item, index}) {
+    const items = []
+
+  for (let i = 0; i <= 24; i++ ) {
+    items.push(
+      <View key={index}>
+        <Text style={{ marginLeft: 30, fontSize: 12 }} >{i > 9 ? i : '0' + i}.00</Text>
+        {i === 0 && 
+          <View style={{ position: 'absolute', left: 100, marginTop: 7.5, height: 115, width: width - 100, backgroundColor: `rgba(2,255,255,0.3)`, borderLeftWidth: 2, borderLeftColor: `rgba(2,255,255,1)`, borderRadius: 2 }}>
+            <View style={{ flexDirection: 'row', marginLeft: 15, marginTop: 10 }}>
+              <Text style={{ fontSize: 15, color: `rgba(2,255,255,1)`, marginRight: 5}}>•</Text>
+              <Text style={{ fontSize: 15, color: 'black'}}>Example task</Text>
+            </View>
+            <View style={{ flexDirection: 'row', marginLeft: 27, marginTop: 10 }}>
+              <Text style={{ fontSize: 15, color: '#ACA19C'}}>Example task</Text>
+            </View>
+          </View>}
+        <View style={{ marginLeft: 30, width: 10, borderWidth: StyleSheet.hairlineWidth, borderColor: '#eaeaea', marginTop: 25}}/>
+        <View style={{ marginLeft: 30, width: 15, borderWidth: StyleSheet.hairlineWidth, borderColor: '#eaeaea', marginTop: 25}}/>
+        <View style={{ marginLeft: 30, width: 10, borderWidth: StyleSheet.hairlineWidth, borderColor: '#eaeaea', marginTop: 25, marginBottom: 25}}/>
+      </View>)
+  }
+
     return (
       <View onLayout={this.onRowLayoutChange.bind(this, index)}>
-        <Reservation
+        {items}
+        {/* <Reservation
           item={item}
           renderItem={this.props.renderItem}
           renderDay={this.props.renderDay}
           renderEmptyDate={this.props.renderEmptyDate}
           theme={this.props.theme}
           rowHasChanged={this.props.rowHasChanged}
-        />
+        /> */}
       </View>
     );
   }

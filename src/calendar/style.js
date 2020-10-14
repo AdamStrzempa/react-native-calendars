@@ -9,13 +9,13 @@ export default function getStyle(theme={}) {
     container: {
       paddingLeft: 5,
       paddingRight: 5,
-      backgroundColor: appStyle.calendarBackground
+      backgroundColor: '#3B4B7C'
     },
     monthView: {
-      backgroundColor: appStyle.calendarBackground
+      backgroundColor: '#3B4B7C'
     },
     week: {
-      marginTop: 7,
+      marginTop: 5,
       marginBottom: 7,
       flexDirection: 'row',
       justifyContent: 'space-around'

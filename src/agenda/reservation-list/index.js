@@ -3,6 +3,7 @@ import {FlatList, ActivityIndicator, View, Text, StyleSheet, Dimensions} from 'r
 import Reservation from './reservation';
 import PropTypes from 'prop-types';
 import XDate from 'xdate';
+import _isEmpty from 'lodash/isEmpty'
 
 import dateutils from '../../dateutils';
 import styleConstructor from './style';
@@ -51,15 +52,18 @@ class ReservationList extends Component {
     };
 
     this.heights=[];
-    this.selectedDay = this.props.selectedDay;
+    this.selectedDay = '';
     this.scrollOver = true;
   }
 
   UNSAFE_componentWillMount() {
-    this.updateDataSource(this.getReservations(this.props).reservations);
+    console.log(this.props)
+    // this.updateReservations(this.props);
+    // this.updateDataSource(this.getReservations(this.props).reservations);
   }
 
   updateDataSource(reservations) {
+    console.log('set', reservations)
     this.setState({
       reservations
     });
@@ -73,20 +77,15 @@ class ReservationList extends Component {
         scrollPosition += this.heights[i] || 0;
       }
       this.scrollOver = false;
-      this.list.scrollToOffset({offset: scrollPosition, animated: true});
+      // this.list.scrollToOffset({offset: scrollPosition, animated: true});
     }
-    this.selectedDay = props.selectedDay;
+    this.selectedDay = !_isEmpty(props?.reservations) && props.selectedDay;
     this.updateDataSource(reservations.reservations);
   }
 
   UNSAFE_componentWillReceiveProps(props) {
-    if (!dateutils.sameDate(props.topDay, this.props.topDay)) {
-      this.setState({
-        reservations: []
-      }, () => {
-        this.updateReservations(props);
-      });
-    } else {
+    if (this.selectedDay.toString('yyyy-MM-dd') !== props.selectedDay.toString('yyyy-MM-dd')
+        || (_isEmpty(this.state.reservations) && !_isEmpty(props?.reservations))) {
       this.updateReservations(props);
     }
   }
@@ -104,52 +103,60 @@ class ReservationList extends Component {
     }
     const row = this.state.reservations[topRow];
     if (!row) return;
-    const day = row.day;
-    const sameDate = dateutils.sameDate(day, this.selectedDay);
-    if (!sameDate && this.scrollOver) {
-      this.selectedDay = day.clone();
-      this.props.onDayChange(day.clone());
-    }
+    // const day = row.day;
+    // const sameDate = dateutils.sameDate(day, this.selectedDay);
+    // if (!sameDate && this.scrollOver) {
+    //   this.selectedDay = day.clone();
+    //   this.props.onDayChange(day.clone());
+    // }
   }
 
   onRowLayoutChange(ind, event) {
     this.heights[ind] = event.nativeEvent.layout.height;
   }
 
+  hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
+  }
+
   renderRow({item, index}) {
     const items = []
 
-  for (let i = 0; i <= 24; i++ ) {
-    items.push(
-      <View key={index}>
-        <Text style={{ marginLeft: 30, fontSize: 12 }} >{i > 9 ? i : '0' + i}.00</Text>
-        {i === 0 && 
-          <View style={{ position: 'absolute', left: 100, marginTop: 7.5, height: 115, width: width - 100, backgroundColor: `rgba(2,255,255,0.3)`, borderLeftWidth: 2, borderLeftColor: `rgba(2,255,255,1)`, borderRadius: 2 }}>
-            <View style={{ flexDirection: 'row', marginLeft: 15, marginTop: 10 }}>
-              <Text style={{ fontSize: 15, color: `rgba(2,255,255,1)`, marginRight: 5}}>•</Text>
-              <Text style={{ fontSize: 15, color: 'black'}}>Example task</Text>
-            </View>
-            <View style={{ flexDirection: 'row', marginLeft: 27, marginTop: 10 }}>
-              <Text style={{ fontSize: 15, color: '#ACA19C'}}>Example task</Text>
-            </View>
-          </View>}
-        <View style={{ marginLeft: 30, width: 10, borderWidth: StyleSheet.hairlineWidth, borderColor: '#eaeaea', marginTop: 25}}/>
-        <View style={{ marginLeft: 30, width: 15, borderWidth: StyleSheet.hairlineWidth, borderColor: '#eaeaea', marginTop: 25}}/>
-        <View style={{ marginLeft: 30, width: 10, borderWidth: StyleSheet.hairlineWidth, borderColor: '#eaeaea', marginTop: 25, marginBottom: 25}}/>
-      </View>)
-  }
+    const event = (item, index) => {
+      const taskColor = this.hexToRgb(item?.color)
+      return (
+        <View key={index} style={{ position: 'absolute', left: 100, height: item?.height, top: item?.startFrom, width: width - 100, backgroundColor: `rgba(${taskColor.r},${taskColor.g},${taskColor.b},0.3)`, borderLeftWidth: 2, borderLeftColor: `rgba(${taskColor.r},${taskColor.g},${taskColor.b},1)`, borderRadius: 2, overflow: 'hidden' }}>
+          <View style={{ flexDirection: 'row', marginLeft: 15, marginTop: 10 }}>
+            <Text style={{ fontSize: 15, color: `rgba(2,255,255,1)`, marginRight: 5}}>•</Text>
+            <Text style={{ fontSize: 15, color: 'black'}}>{item?.name}</Text>
+          </View>
+          <View style={{ flexDirection: 'row', marginLeft: 27, marginTop: 10 }}>
+            <Text style={{ fontSize: 15, color: '#ACA19C'}}>Example task</Text>
+          </View>
+        </View>)
+        }
+
+    for (let i = 0; i <= 24; i++ ) {
+      items.push(
+        <View key={i}>
+          <View style={{ alignItems: 'flex-start', justifyContent: 'flex-start', marginLeft: 30, width: 100, height: 25  }}>
+            <Text style={{ textAlign: 'left', position: 'absolute', top: -7, fontSize: 12 }} >{i > 9 ? i : '0' + i}.00</Text>
+          </View>
+          <View style={{ marginLeft: 30, width: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: 'black'}}/>
+          <View style={{ marginLeft: 30, width: 15, height: 25 , borderBottomWidth: StyleSheet.hairlineWidth, borderColor: 'black'}}/>
+          <View style={{ marginLeft: 30, width: 10, height: 25 , marginBottom: 25 - StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: 'black'}}/>
+        </View>)
+    }
 
     return (
       <View onLayout={this.onRowLayoutChange.bind(this, index)}>
         {items}
-        {/* <Reservation
-          item={item}
-          renderItem={this.props.renderItem}
-          renderDay={this.props.renderDay}
-          renderEmptyDate={this.props.renderEmptyDate}
-          theme={this.props.theme}
-          rowHasChanged={this.props.rowHasChanged}
-        /> */}
+        {item.map((i, index) => event(i, index))}
       </View>
     );
   }
@@ -184,28 +191,13 @@ class ReservationList extends Component {
       return {reservations: [], scrollPosition: 0};
     }
     let reservations = [];
-    if (this.state.reservations && this.state.reservations.length) {
-      const iterator = this.state.reservations[0].day.clone();
-      while (iterator.getTime() < props.selectedDay.getTime()) {
-        const res = this.getReservationsForDay(iterator, props);
-        if (!res) {
-          reservations = [];
-          break;
-        } else {
-          reservations = reservations.concat(res);
-        }
-        iterator.addDays(1);
+    if (this.selectedDay.toString('yyyy-MM-dd') !== props.selectedDay.clone().toString('yyyy-MM-dd')) {
+      const iterator = props.selectedDay.clone().toString('yyyy-MM-dd');
+      if(iterator in props.reservations) {
+        reservations = props.reservations[iterator]
       }
     }
     const scrollPosition = reservations.length;
-    const iterator = props.selectedDay.clone();
-    for (let i = 0; i < 31; i++) {
-      const res = this.getReservationsForDay(iterator, props);
-      if (res) {
-        reservations = reservations.concat(res);
-      }
-      iterator.addDays(1);
-    }
 
     return {reservations, scrollPosition};
   }
@@ -226,7 +218,7 @@ class ReservationList extends Component {
         style={this.props.style}
         contentContainerStyle={this.styles.content}
         renderItem={this.renderRow.bind(this)}
-        data={this.state.reservations}
+        data={[this.state.reservations]}
         onScroll={this.onScroll.bind(this)}
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={200}
@@ -239,6 +231,7 @@ class ReservationList extends Component {
         onScrollEndDrag={this.props.onScrollEndDrag}
         onMomentumScrollBegin={this.props.onMomentumScrollBegin}
         onMomentumScrollEnd={this.props.onMomentumScrollEnd}
+        contentContainerStyle={{ paddingTop: 10 }}
       />
     );
   }

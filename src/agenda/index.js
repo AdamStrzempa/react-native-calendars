@@ -462,7 +462,7 @@ export default class AgendaView extends Component {
         </Animated.View>
         <Animated.View style={weekdaysStyle}>
           <View style={{ height: 70, justifyContent: 'center' }}>
-            <Text style={[this.styles.weekday, { textAlign: 'left', margin: 0, marginLeft: 12, width: 100, fontSize: 30 }]}>{this.state.selectedDay.toString('MMMM')}</Text>
+            <Text style={[this.styles.weekday, { textAlign: 'left', margin: 0, marginLeft: 12, width: '100%', fontSize: 30 }]}>{this.state.selectedDay.toString('MMMM')}</Text>
           </View>
           <View style={[{ flexDirection: 'row',justifyContent: 'space-between', paddingHorizontal: 9 }]}>
           {weekDaysNames.map((day, index) => (

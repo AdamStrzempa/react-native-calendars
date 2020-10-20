@@ -95,7 +95,10 @@ export default class AgendaView extends Component {
     /** Called when the momentum scroll starts for the agenda list. **/
     onMomentumScrollBegin: PropTypes.func,
     /** Called when the momentum scroll stops for the agenda list. **/
-    onMomentumScrollEnd: PropTypes.func
+    onMomentumScrollEnd: PropTypes.func,
+    onPressItem: PropTypes.func,
+    onPressDeleteItem: PropTypes.func,
+    deleteImage: PropTypes.string
   };
 
   constructor(props) {
@@ -307,6 +310,9 @@ export default class AgendaView extends Component {
         onScrollEndDrag={this.props.onScrollEndDrag}
         onMomentumScrollBegin={this.props.onMomentumScrollBegin}
         onMomentumScrollEnd={this.props.onMomentumScrollEnd}
+        onPressItem={this.props.onPressItem}
+        onPressDeleteItem={this.props.onPressDeleteItem}
+        deleteImage={this.props.deleteImage}
         refreshControl={this.props.refreshControl}
         refreshing={this.props.refreshing}
         onRefresh={this.props.onRefresh}

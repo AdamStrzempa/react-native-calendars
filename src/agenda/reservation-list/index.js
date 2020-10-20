@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {FlatList, ActivityIndicator, View, Text, StyleSheet, Dimensions} from 'react-native';
+import {FlatList, ActivityIndicator, View, Text, StyleSheet, Dimensions, ScrollView, TouchableOpacity, Image} from 'react-native';
 import Reservation from './reservation';
 import PropTypes from 'prop-types';
 import XDate from 'xdate';
@@ -39,7 +39,10 @@ class ReservationList extends Component {
     onScrollBeginDrag: PropTypes.func,
     onScrollEndDrag: PropTypes.func,
     onMomentumScrollBegin: PropTypes.func,
-    onMomentumScrollEnd: PropTypes.func
+    onMomentumScrollEnd: PropTypes.func,
+    onPressItem: PropTypes.func,
+    onPressDeleteItem: PropTypes.func,
+    deleteImage: PropTypes.string
   };
 
   constructor(props) {
@@ -57,13 +60,52 @@ class ReservationList extends Component {
   }
 
   UNSAFE_componentWillMount() {
-    console.log(this.props)
     // this.updateReservations(this.props);
     // this.updateDataSource(this.getReservations(this.props).reservations);
   }
 
   updateDataSource(reservations) {
-    console.log('set', reservations)
+    const updateArr = []
+    reservations.map((itemI, indexI) => {
+      reservations.map((itemY, indexY) => {
+        if (itemI.id === itemY.id || indexY > indexI) return
+        const itemStart = itemI.startFrom
+        const itemEnd = itemI.startFrom + itemI?.height
+        const iStart = itemY.startFrom
+        const iEnd = itemY.startFrom + itemY.height
+        if ((itemStart >= iStart && itemStart <= iEnd) || (itemEnd >= iStart && itemEnd <= iEnd)) {
+          let needNew = true
+          updateArr.map((item, index) => 
+              item.map(i => {
+                if(i === itemY.id || i === itemI.id) {
+                  needNew = false
+                  const indexOf = updateArr[index].indexOf(itemI.id)
+                  if (indexOf === -1) updateArr[index].push(itemI.id)
+                } else {
+                  
+                }
+              })
+            )
+          if(needNew) {
+            updateArr.push([itemI.id, itemY.id])
+          } 
+          
+        }
+      })
+    })
+
+    reservations.map((itemI, indexI) => {
+      updateArr.map((item, index) => 
+        item.map((i, iter) => {
+          if(i === itemI.id) {
+            itemI.row = updateArr[index].length
+            itemI.position = iter
+          }
+        })
+      )
+      return itemI
+    })
+
     this.setState({
       reservations
     });
@@ -84,6 +126,11 @@ class ReservationList extends Component {
   }
 
   UNSAFE_componentWillReceiveProps(props) {
+    if (props.selectedDay.toString('yyyy-MM-dd') == props.topDay.toString('yyyy-MM-dd')) {
+      const offset = this.currentTime()
+      this?.list?.scrollToOffset({offset: 800, animated: true});
+    }
+    
     if (this.selectedDay.toString('yyyy-MM-dd') !== props.selectedDay.toString('yyyy-MM-dd')
         || (_isEmpty(this.state.reservations) && !_isEmpty(props?.reservations))) {
       this.updateReservations(props);
@@ -103,12 +150,6 @@ class ReservationList extends Component {
     }
     const row = this.state.reservations[topRow];
     if (!row) return;
-    // const day = row.day;
-    // const sameDate = dateutils.sameDate(day, this.selectedDay);
-    // if (!sameDate && this.scrollOver) {
-    //   this.selectedDay = day.clone();
-    //   this.props.onDayChange(day.clone());
-    // }
   }
 
   onRowLayoutChange(ind, event) {
@@ -124,20 +165,39 @@ class ReservationList extends Component {
     } : null;
   }
 
+  currentTime() {
+    const d = new Date(Date.now())
+    const currentTime = String(d.getHours()) + String(d.getMinutes() > 10 ? d.getMinutes() : '0' + d.getMinutes())
+    return Number(currentTime)
+  }
+
   renderRow({item, index}) {
     const items = []
 
+    const offset = this.currentTime()
+
     const event = (item, index) => {
       const taskColor = this.hexToRgb(item?.color)
+
+      const newWidth = (width - 100) / item?.row
+    
+      const extraStyles = item?.height === 25 && { bottom: 2, height: 20, width: 20 }
       return (
-        <View key={index} style={{ position: 'absolute', left: 100, height: item?.height, top: item?.startFrom, width: width - 100, backgroundColor: `rgba(${taskColor.r},${taskColor.g},${taskColor.b},0.3)`, borderLeftWidth: 2, borderLeftColor: `rgba(${taskColor.r},${taskColor.g},${taskColor.b},1)`, borderRadius: 2, overflow: 'hidden' }}>
-          <View style={{ flexDirection: 'row', marginLeft: 15, marginTop: 10 }}>
-            <Text style={{ fontSize: 15, color: `rgba(2,255,255,1)`, marginRight: 5}}>•</Text>
-            <Text style={{ fontSize: 15, color: 'black'}}>{item?.name}</Text>
-          </View>
-          <View style={{ flexDirection: 'row', marginLeft: 27, marginTop: 10 }}>
-            <Text style={{ fontSize: 15, color: '#ACA19C'}}>Example task</Text>
-          </View>
+        <View key={index} style={{ position: 'absolute', width: newWidth || width - 100, top: item?.startFrom, left: item?.position ? 100 + item?.position * newWidth : 100, height: item?.height, backgroundColor: `rgba(${taskColor.r},${taskColor.g},${taskColor.b},0.3)`, borderLeftWidth: 2, borderLeftColor: `rgba(${taskColor.r},${taskColor.g},${taskColor.b},1)`, borderRadius: 2, overflow: 'hidden' }}>
+          <TouchableOpacity style={{ flex: 1, height: item?.height}} onPress={() => this.props.onPressItem(item, this.selectedDay.toString('yyyy-MM-dd'))}>
+            <ScrollView>
+            <View style={{ flexDirection: 'row', marginLeft: 15, marginTop: 10 }}>
+              {item?.name.length > 0 && <Text style={{ fontSize: 15, color: `rgba(${taskColor.r},${taskColor.g},${taskColor.b},1)`, marginRight: 5}}>•</Text>}
+              <Text style={{ fontSize: 15, color: 'black'}}>{item?.name}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', marginLeft: 27, marginTop: 10 }}>
+              <Text style={{ fontSize: 15, color: '#fff'}}>{item?.desc}</Text>
+            </View>
+            </ScrollView>
+            <TouchableOpacity onPress={() => this.props.onPressDeleteItem(item)} style={[{ position: 'absolute', right: 5, bottom: 15, flex: 1, maxHeight: 25, width: 30, justifyContent: 'center', alignContent: 'center' }, extraStyles]}>
+              <Image style={[{ height: 30, width: 30 }, extraStyles]} resizeMode={'contain'} source={this.props.deleteImage}/>
+            </TouchableOpacity>
+          </TouchableOpacity>
         </View>)
         }
 
@@ -154,8 +214,11 @@ class ReservationList extends Component {
     }
 
     return (
-      <View onLayout={this.onRowLayoutChange.bind(this, index)}>
+      <View key={index} onLayout={this.onRowLayoutChange.bind(this, index)}>
         {items}
+        {this.props.selectedDay.toString('yyyy-MM-dd') == this.props.topDay.toString('yyyy-MM-dd') && <View style={{ position: 'absolute', width: '100%', top: offset, borderBottomWidth: 1, borderBottomColor: '#B6C3F7' }}>
+          <View style={{ height: 7, width: 7, top: 4, left: 10, borderRadius: 50, backgroundColor: '#5982F1'}}/>
+        </View>}
         {item.map((i, index) => event(i, index))}
       </View>
     );
